@@ -34,7 +34,7 @@ def export_pdf(cur):
     for i, row in enumerate(rows):
         photo_data, name, age, dob, sex, edu, marital, blood, phone, email, address = row
 
-        story.append(Paragraph("Curriculum Vitae", title_style))
+        story.append(Paragraph("Employee Information", title_style))
         story.append(Spacer(1, 10))
 
         # Process photo

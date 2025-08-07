@@ -33,7 +33,7 @@ fields = {
     "Name": StringVar(),
     "Age": StringVar(),
     "DOB": StringVar(),
-    "Sex": StringVar(value=""),
+    "Sex": StringVar(value="Male"),  # Default to Male
     "Education": StringVar(),
     "Marital Status": StringVar(value=""),
     "Blood Type": StringVar(value=""),
@@ -42,7 +42,6 @@ fields = {
     "Address": StringVar()
 }
 
-sex_options = ["", "Male", "Female"]
 marital_options = ["", "Single", "Married", "Divorced", "Widowed"]
 blood_options = ["", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
 
@@ -74,7 +73,7 @@ def validate_fields():
         return False
 
     if not re.match(r"^\d{2}[-./]\d{2}[-./]\d{4}$", dob):
-        messagebox.showerror("Validation Error", "DOB must be in format dd.mm.yyyy, dd-mm-yyyy, or dd/mm/yyyy.")
+        messagebox.showerror("Validation Error", "DOB must be in format dd.mm.yyyy")
         return False
 
     if not re.match(r"^09\d{9}$", phone):
@@ -84,7 +83,6 @@ def validate_fields():
     if not re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", email):
         messagebox.showerror("Validation Error", "Invalid email format.")
         return False
-
     return True
 
 # Functions
@@ -148,6 +146,7 @@ def clear_fields():
         var.set("")
     selected_id = None
     photo_data = None
+    fields["Sex"].set("Male")
     photo_label.configure(image=blank_tk)
     photo_label.img = blank_tk
 
@@ -183,32 +182,40 @@ main_frame.rowconfigure(0, weight=1)
 # Form Frame
 form_frame = ttk.LabelFrame(main_frame, text="Employee Information", padding=10)
 form_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
-form_frame.columnconfigure(0, weight=3)
-form_frame.columnconfigure(1, weight=3)
-form_frame.columnconfigure(2, weight=1)
+form_frame.columnconfigure(1, weight=1)
+
+# Photo
+photo_label = Label(form_frame, bg="white", width=80, height=100, relief=SOLID, bd=1)
+photo_label.grid(row=0, column=2, rowspan=2, sticky=N, padx=(10, 0), pady=(0, 5))
+photo_label.configure(image=blank_tk)
+photo_label.img = blank_tk
+(ttk.Button(form_frame, text="Load Photo", command=lambda: set_photo(load_photo(photo_label)))
+ .grid(row=2, column=2, sticky=N))
 
 # Form Fields
 row_idx = 0
 for label, var in fields.items():
-    ttk.Label(form_frame, text=label + ":").grid(row=row_idx, column=0, sticky=W, pady=5, padx=(0,10))
-    if label in ["Sex", "Marital Status", "Blood Type"]:
-        options = sex_options if label == "Sex" else marital_options if label == "Marital Status" else blood_options
-        ttk.Combobox(form_frame, textvariable=var, values=options, width=27, state="readonly").grid(row=row_idx, column=1, sticky=W)
+    if label == "Sex":
+        ttk.Label(form_frame, text="Sex:").grid(row=row_idx, column=0, sticky=W, pady=5, padx=(0, 10))
+        sex_frame = Frame(form_frame)
+        sex_frame.grid(row=row_idx, column=1, sticky=W)
+        Radiobutton(sex_frame, text="Male", variable=fields["Sex"], value="Male").pack(side=LEFT, padx=5)
+        Radiobutton(sex_frame, text="Female", variable=fields["Sex"], value="Female").pack(side=LEFT, padx=5)
+        row_idx += 1
+        continue
+
+    ttk.Label(form_frame, text=label + ":").grid(row=row_idx, column=0, sticky=W, pady=5, padx=(0, 10))
+    if label in ["Marital Status", "Blood Type"]:
+        options = marital_options if label == "Marital Status" else blood_options
+        (ttk.Combobox(form_frame, textvariable=var, values=options, width=28, state="readonly")
+         .grid(row=row_idx, column=1, sticky=W))
     elif label == "Employee ID":
         ttk.Entry(form_frame, textvariable=var, width=30, state="readonly").grid(row=row_idx, column=1, sticky=W)
     else:
         ttk.Entry(form_frame, textvariable=var, width=30).grid(row=row_idx, column=1, sticky=W)
     row_idx += 1
 
-# Photo section
-photo_label = Label(form_frame, bg="white", width=80, height=100, relief=SOLID, bd=1)
-photo_label.grid(row=0, column=2, sticky=N, padx=(10,0), pady=(0,5))
-photo_label.configure(image=blank_tk)
-photo_label.img = blank_tk
-
-ttk.Button(form_frame, text="Load Photo", command=lambda: set_photo(load_photo(photo_label))).grid(row=1, column=2, sticky=N, padx=(10,0))
-
-# Treeview Frame (Replaces Listbox)
+# Treeview Frame
 tree_frame = ttk.LabelFrame(main_frame, text="Employee List", padding=10)
 tree_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
 
@@ -225,13 +232,16 @@ btn_frame = ttk.Frame(main_frame, padding=10)
 btn_frame.grid(row=1, column=0, columnspan=2)
 
 ttk.Button(btn_frame, text="Create", width=15,
-           command=lambda: create_employee(cur, conn, fields, photo_data, clear_fields, view_all) if validate_fields() else None).grid(row=0, column=0, padx=5)
+           command=lambda: create_employee(cur, conn, fields, photo_data, clear_fields, view_all)
+           if validate_fields() else None).grid(row=0, column=0, padx=5)
 
 ttk.Button(btn_frame, text="Update", width=15,
-           command=lambda: update_employee(cur, conn, selected_id, fields, photo_data, clear_fields, view_all) if validate_fields() else None).grid(row=0, column=1, padx=5)
+           command=lambda: update_employee(cur, conn, selected_id, fields, photo_data, clear_fields, view_all)
+           if validate_fields() else None).grid(row=0, column=1, padx=5)
 
-ttk.Button(btn_frame, text="Delete", width=15,
-           command=lambda: delete_employee(cur, conn, selected_id, clear_fields, view_all)).grid(row=0, column=2, padx=5)
+(ttk.Button(btn_frame, text="Delete", width=15,
+           command=lambda: delete_employee(cur, conn, selected_id, clear_fields, view_all))
+ .grid(row=0, column=2, padx=5))
 
 ttk.Button(btn_frame, text="Export PDF", width=15,
            command=lambda: export_pdf(cur)).grid(row=0, column=3, padx=5)
