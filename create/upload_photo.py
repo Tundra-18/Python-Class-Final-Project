@@ -6,7 +6,13 @@ photo_data = None
 
 def load_photo(photo_label):
     global photo_data
-    filepath = filedialog.askopenfilename(filetypes=[("Image files", "*.png;*.jpg;*.jpeg")])
+    filepath = filedialog.askopenfilename(filetypes=[
+        ("PNG files", "*.png"),
+        ("JPEG files", "*.jpg"),
+        ("JPEG files", "*.jpeg"),
+        ("All files", "*.*")
+    ])
+
     if filepath:
         with open(filepath, 'rb') as f:
             photo_data = f.read()
