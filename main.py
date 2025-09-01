@@ -10,7 +10,7 @@ from export.export_pdf import export_pdf
 import io
 import re
 
-# Database setup
+# Database setupd
 conn = get_connection()
 cur = conn.cursor()
 
