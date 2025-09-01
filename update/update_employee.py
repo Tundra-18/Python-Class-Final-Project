@@ -6,7 +6,7 @@ def update_employee(cur, conn, selected_id, fields, photo_data, clear_fields, vi
         return
     try:
         # Read individual fields safely
-        name = fields["Name"].get().strip()
+        name = fields["Name"].get().strip().title()
         age_str = fields["Age"].get().strip()
         dob_str = fields["DOB"].get().strip()
         sex = fields["Sex"].get()
