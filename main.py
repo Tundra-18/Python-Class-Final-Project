@@ -244,7 +244,8 @@ ttk.Button(btn_frame, text="Update", width=15,
  .grid(row=0, column=2, padx=5))
 
 ttk.Button(btn_frame, text="Export PDF", width=15,
-           command=lambda: export_pdf(cur)).grid(row=0, column=3, padx=5)
+           command=lambda: export_pdf(cur, selected_id) if selected_id else messagebox.showerror("Error", "No employee selected.")).grid(row=0, column=3, padx=5)
+
 
 ttk.Button(btn_frame, text="Clear Fields", width=15,
            command=clear_fields).grid(row=0, column=4, padx=5)
