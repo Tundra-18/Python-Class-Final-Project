@@ -4,7 +4,7 @@ from datetime import datetime
 def create_employee(cur, conn, fields, photo_data, clear_fields, view_all):
     try:
         # Read individual fields
-        name = fields["Name"].get().strip()
+        name = fields["Name"].get().strip().title()
         age_str = fields["Age"].get().strip()
         dob_str = fields["DOB"].get().strip()
         sex = fields["Sex"].get()
